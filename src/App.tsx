@@ -11,17 +11,37 @@ import { get5First, getAll, getRedGoods } from './api/goods';
 export const App: React.FC = () => {
   const [goods, setGoods] = React.useState<Good[]>([]);
 
-  const handleLoadAll = () => {
-    getAll().then(setGoods);
-  };
+  const [error, setError] = React.useState<string | null>(null);
 
-  const handleLoad5First = () => {
-    get5First().then(setGoods);
-  };
+  const handleLoadAll = React.useCallback(() => {
+    setError(null);
+    getAll()
+      .then(setGoods)
+      .catch(err => {
+        setGoods([]);
+        setError(err.message || 'Failed to load goods');
+      });
+  }, []);
 
-  const handleLoadRed = () => {
-    getRedGoods().then(setGoods);
-  };
+  const handleLoad5First = React.useCallback(() => {
+    setError(null);
+    get5First()
+      .then(setGoods)
+      .catch(err => {
+        setGoods([]);
+        setError(err.message || 'Failed to load goods');
+      });
+  }, []);
+
+  const handleLoadRed = React.useCallback(() => {
+    setError(null);
+    getRedGoods()
+      .then(setGoods)
+      .catch(err => {
+        setGoods([]);
+        setError(err.message || 'Failed to load goods');
+      });
+  }, []);
 
   return (
     <div className="App">
@@ -43,6 +63,15 @@ export const App: React.FC = () => {
         Load red goods
       </button>
 
+      {error && (
+        <div
+          className="App__error"
+          style={{ color: 'red', margin: '1em 0' }}
+          data-cy="error-message"
+        >
+          {error}
+        </div>
+      )}
       <GoodsList goods={goods} />
     </div>
   );
